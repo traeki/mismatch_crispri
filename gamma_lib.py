@@ -49,6 +49,8 @@ def compute_gamma(startfile, endfile, controlset, gt):
   frame.index.name = 'variant'
   return frame
 
+# TODO(jsh): simplify annotations down to "chosen" file
+# TODO(jsh): predictions should be the exlusive purview of model_lib!
 def annotate_variants(variants, predictfile, targetfile, genbank):
   annoframe = pd.DataFrame(index=variants)
   predictframe = pd.read_csv(predictfile, sep='\t')

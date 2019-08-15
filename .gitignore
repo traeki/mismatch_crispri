@@ -1,6 +1,7 @@
 testdata/*.counts
 testdata/*.skipped
 testdata/*.weird
+testdata/test.chosen.guides.tsv
 
 ##################
 # Python section #

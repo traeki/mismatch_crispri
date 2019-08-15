@@ -1,7 +1,7 @@
 sample	start	end
-xa	tiny.x0.fastq.gz	tiny.xa.fastq.gz
-xb	tiny.x0.fastq.gz	tiny.xb.fastq.gz
-xc	tiny.x0.fastq.gz	tiny.xc.fastq.gz
-ya	tiny.y0.fastq.gz	tiny.ya.fastq.gz
-yb	tiny.y0.fastq.gz	tiny.yb.fastq.gz
-yc	tiny.y0.fastq.gz	tiny.yc.fastq.gz
+xa	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.x0.fastq.gz.counts	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.xa.fastq.gz.counts
+xb	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.x0.fastq.gz.counts	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.xb.fastq.gz.counts
+xc	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.x0.fastq.gz.counts	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.xc.fastq.gz.counts
+ya	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.y0.fastq.gz.counts	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.ya.fastq.gz.counts
+yb	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.y0.fastq.gz.counts	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.yb.fastq.gz.counts
+yc	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.y0.fastq.gz.counts	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.yc.fastq.gz.counts
