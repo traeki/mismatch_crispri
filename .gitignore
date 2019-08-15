@@ -1,3 +1,7 @@
+testdata/*.counts
+testdata/*.skipped
+testdata/*.weird
+
 ##################
 # Python section #
 ##################

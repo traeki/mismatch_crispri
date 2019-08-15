@@ -1,0 +1,7 @@
+sample	start	end
+wa	tiny.w0.fastq.gz	tiny.wa.fastq.gz
+wb	tiny.w0.fastq.gz	tiny.wb.fastq.gz
+wc	tiny.w0.fastq.gz	tiny.wc.fastq.gz
+za	tiny.z0.fastq.gz	tiny.za.fastq.gz
+zb	tiny.z0.fastq.gz	tiny.zb.fastq.gz
+zc	tiny.z0.fastq.gz	tiny.zc.fastq.gz

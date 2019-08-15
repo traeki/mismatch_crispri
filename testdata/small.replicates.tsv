@@ -1,0 +1,7 @@
+sample	start	end
+xa	tiny.x0.fastq.gz	tiny.xa.fastq.gz
+xb	tiny.x0.fastq.gz	tiny.xb.fastq.gz
+xc	tiny.x0.fastq.gz	tiny.xc.fastq.gz
+ya	tiny.y0.fastq.gz	tiny.ya.fastq.gz
+yb	tiny.y0.fastq.gz	tiny.yb.fastq.gz
+yc	tiny.y0.fastq.gz	tiny.yc.fastq.gz

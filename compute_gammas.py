@@ -18,6 +18,10 @@ TARGETFILE = DATADIR / 'bsu.NC_000964.merged.gb.targets.all.tsv'
 CONTROLFILE = DATADIR / '2019.chip2.control.guides'
 PREDICTFILE = DATADIR / 'predict_all_linear.bsu.tsv'
 
+# TODO(jsh): add argparse stanza
+# TODO(jsh): read tsv file instead
+# TODO(jsh): add actual structure
+
 controlset = gl.get_controlset(CONTROLFILE)
 replicates = dict()
 replicates['a1'] = (
