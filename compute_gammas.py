@@ -58,7 +58,7 @@ def parse_args():
 
 def flatgamma(stacked_replicates, controls):
   data = stacked_replicates
-  data['y_pred'] = -(ml.predict_mismatch_scores(data))
+  data['y_pred'] = ml.predict_mismatch_scores(data)
   data.y_pred = data.y_pred.where(~data.variant.isin(controls), 0.0)
   anno = data.drop(['rep', 'gamma', 'start_mask'], axis='columns')
   anno = anno.drop_duplicates()
