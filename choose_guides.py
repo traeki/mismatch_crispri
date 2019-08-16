@@ -60,9 +60,8 @@ def main():
   args = parse_args()
   logging.info('Reading targets from {args.targetfile}...'.format(**locals()))
   logging.info('Building variants for {args.locifile}...'.format(**locals()))
-  pair_frame = cl.build_and_filter_pairs(
-      targetfile=args.targetfile,
-      locifile=args.locifile)
+  loci = set(pd.read_csv(args.locifile, sep='\t', header=None)[0])
+  pair_frame = cl.build_and_filter_pairs(args.targetfile, loci)
   pair_frame['y_pred'] = -(ml.predict_mismatch_scores(pair_frame))
   all_targets = pd.read_csv(args.targetfile, sep='\t')
   important = set(pd.read_csv(args.locifile, sep='\t', header=None)[0])

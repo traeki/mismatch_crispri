@@ -8,6 +8,8 @@ import pandas as pd
 import numpy as np
 from Bio import SeqIO
 
+import choice_lib as cl
+
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
 
@@ -40,6 +42,7 @@ def compute_gamma(startfile, endfile, controlset, gt):
   start = log_counts(startfile)
   end = log_counts(endfile)
   diff = end - start
+  diff = diff.where(start_mask, np.nan)
   center = diff.loc[diff.index.isin(controlset)].median()
   gamma = (diff - center) / gt
   gamma.name = 'gamma'
@@ -49,25 +52,26 @@ def compute_gamma(startfile, endfile, controlset, gt):
   frame.index.name = 'variant'
   return frame
 
-# TODO(jsh): simplify annotations down to "chosen" file
-# TODO(jsh): predictions should be the exlusive purview of model_lib!
-def annotate_variants(variants, predictfile, targetfile, genbank):
+def annotate_variants(variants, targetfile, locifile, genbank):
   annoframe = pd.DataFrame(index=variants)
-  predictframe = pd.read_csv(predictfile, sep='\t')
-  relevant = predictframe.loc[predictframe.variant.isin(variants) &
-                              predictframe.original.isin(variants)]
+  # TODO(jsh): Reading this in is now redundant.  Ugh.  Fix later.
+  targetframe = pd.read_csv(targetfile, sep='\t')
+  # Still crashing on mismatch shit
+  loci = set(pd.read_csv(locifile, sep='\t', header=None)[0])
+  variantspace = cl.build_and_filter_pairs(targetfile, loci)
+  relevant = variantspace.loc[variantspace.variant.isin(variants) &
+                              variantspace.original.isin(variants)]
   relevant = relevant[['variant', 'original']]
   annoframe = pd.merge(annoframe, relevant,
                        left_index=True, right_on='variant', how='left')
   unset_mask = annoframe.original.isna()
   annoframe.original = annoframe.variant.where(unset_mask, annoframe.original)
-  origlocusmap = predictframe[['original', 'locus_tag']].drop_duplicates()
+  origlocusmap = targetframe[['target', 'locus_tag']].drop_duplicates()
+  origlocusmap.columns = ['original', 'locus_tag']
+  origlocusmap = origlocusmap.loc[origlocusmap.locus_tag.isin(loci)]
+  # TODO(jsh): the next line expands annoframe by 1440
+  # TODO(jsh): it's not the controls -- 6000 have no locus_tag
   annoframe = pd.merge(annoframe, origlocusmap, on='original', how='left')
-  targetframe = pd.read_csv(targetfile, sep='\t', low_memory=False)
-  targetframe = targetframe.iloc[:,:4]
-  targetframe.columns = ['locus_tag', 'offset', 'original', 'pam']
-  annoframe = pd.merge(annoframe, targetframe,
-                       on=['original', 'locus_tag'], how='left')
   locusgenemap = dict()
   gbhandle = open(genbank, 'r')
   for record in SeqIO.parse(gbhandle, 'genbank'):

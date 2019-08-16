@@ -2,6 +2,3 @@ sample	start	end
 wa	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.w0.fastq.gz.counts	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.wa.fastq.gz.counts
 wb	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.w0.fastq.gz.counts	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.wb.fastq.gz.counts
 wc	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.w0.fastq.gz.counts	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.wc.fastq.gz.counts
-za	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.z0.fastq.gz.counts	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.za.fastq.gz.counts
-zb	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.z0.fastq.gz.counts	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.zb.fastq.gz.counts
-zc	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.z0.fastq.gz.counts	/home/jsh/gd/proj/mismatch_crispri/testdata/tiny.zc.fastq.gz.counts
