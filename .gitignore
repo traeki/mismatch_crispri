@@ -2,8 +2,8 @@ testdata/*.counts
 testdata/*.skipped
 testdata/*.weird
 testdata/test.chosen.guides.tsv
-testdata/test.config.tsv.gammas.mean.tsv
-testdata/test.config.tsv.gammas.tsv
+testdata/gammas.mean.tsv
+testdata/gammas.tsv
 
 ##################
 # Python section #
