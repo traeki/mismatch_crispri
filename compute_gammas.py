@@ -39,8 +39,8 @@ def parse_args():
       help='file: list of applicable locus_tags',
       default=str(TESTDIR / 'test.loci'))
   parser.add_argument(
-      '--config', type=str, help='file: configuration table with...\nREPL\tSTART\tEND\n...entries.',
-      default=str(TESTDIR / 'test.config.tsv'))
+      '--configdir', type=str, help='file: name of directory containing config.tsv',
+      default=str(TESTDIR))
   parser.add_argument(
       '--gammafile', type=str,
       help='file: file to which to write annotated gamma measurements',
@@ -52,7 +52,7 @@ def parse_args():
   args = parser.parse_args()
   # TODO(jsh): Add check that either all or none of these are specified
   if args.gammafile is None:
-    args.gammafile = args.config + '.gammas.tsv'
+    args.gammafile = pathlib.Path(args.configdir) / 'gammas.tsv'
   return args
 
 
@@ -70,15 +70,34 @@ def flatgamma(stacked_replicates, controls):
   return data
 
 
+def count_mismatches(row):
+  n = 0
+  v = row.variant
+  o = row.original
+  for i in range(len(v)):
+    if v[i] != o[i]:
+      n += 1
+  return n
+
+def one_or_fewer_mismatches(row):
+  return count_mismatches(row) <= 1
+
+def max_one_mismatch_mask(frame):
+  return frame.apply(one_or_fewer_mismatches, axis='columns')
+
+
 def main():
   args = parse_args()
   controls = set(pd.read_csv(args.controls, header=None)[0])
-  config = pd.read_csv(args.config, sep='\t')
+  configdir = pathlib.Path(args.configdir)
+  config = pd.read_csv(configdir / 'config.tsv', sep='\t')
   config = config.set_index('sample')
   rep_frames = list()
   for rep, ends in config.iterrows():
     logging.info('Computing gammas for sample {rep}...'.format(**locals()))
-    rep_frame = gl.compute_gamma(ends.start, ends.end, controls, args.growth)
+    start = configdir / ends.start
+    end = configdir / ends.end
+    rep_frame = gl.compute_gamma(start, end, controls, args.growth)
     rep_frame['rep'] = rep
     rep_frame = rep_frame.reset_index()
     rep_frames.append(rep_frame)
@@ -88,6 +107,7 @@ def main():
   annoframe = annoframe.drop('variant', axis='columns')
   annoframe = pd.concat([collected, annoframe], axis='columns')
   annoframe.to_csv(args.gammafile, index=False, sep='\t')
+  annoframe = annoframe.loc[max_one_mismatch_mask(annoframe)]
   flatframe = flatgamma(annoframe, controls)
   flatfile = pathlib.Path(args.gammafile).with_suffix('.mean.tsv')
   flatframe.to_csv(flatfile, sep='\t')

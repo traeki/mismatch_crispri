@@ -26,7 +26,7 @@ def parse_args():
   parser.add_argument(
       '--meangammas', type=str,
       help='file: file containing averaged gammas (i.e. ???.gammas.mean.tsv)',
-      default=str(TESTDIR / 'test.config.tsv.gammas.mean.tsv'))
+      default=str(TESTDIR / 'gammas.mean.tsv'))
   parser.add_argument(
       '--plotdir', type=str,
       help='directory: directory for plots (WARNING: will be created and cleared)',

@@ -54,11 +54,10 @@ def compute_gamma(startfile, endfile, controlset, gt):
 
 def annotate_variants(variants, targetfile, locifile, genbank):
   annoframe = pd.DataFrame(index=variants)
-  # TODO(jsh): Reading this in is now redundant.  Ugh.  Fix later.
-  targetframe = pd.read_csv(targetfile, sep='\t')
-  # Still crashing on mismatch shit
   loci = set(pd.read_csv(locifile, sep='\t', header=None)[0])
-  variantspace = cl.build_and_filter_pairs(targetfile, loci)
+  targetframe = pd.read_csv(targetfile, sep='\t')
+  filtered = cl.filter_targets(targetframe, loci)
+  variantspace = cl.build_pairs(filtered, loci)
   relevant = variantspace.loc[variantspace.variant.isin(variants) &
                               variantspace.original.isin(variants)]
   relevant = relevant[['variant', 'original']]
@@ -66,11 +65,8 @@ def annotate_variants(variants, targetfile, locifile, genbank):
                        left_index=True, right_on='variant', how='left')
   unset_mask = annoframe.original.isna()
   annoframe.original = annoframe.variant.where(unset_mask, annoframe.original)
-  origlocusmap = targetframe[['target', 'locus_tag']].drop_duplicates()
+  origlocusmap = filtered[['target', 'locus_tag']]
   origlocusmap.columns = ['original', 'locus_tag']
-  origlocusmap = origlocusmap.loc[origlocusmap.locus_tag.isin(loci)]
-  # TODO(jsh): the next line expands annoframe by 1440
-  # TODO(jsh): it's not the controls -- 6000 have no locus_tag
   annoframe = pd.merge(annoframe, origlocusmap, on='original', how='left')
   locusgenemap = dict()
   gbhandle = open(genbank, 'r')

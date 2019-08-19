@@ -1,0 +1,4 @@
+sample	start	end
+wa	tiny.w0.fastq.gz.counts	tiny.wa.fastq.gz.counts
+wb	tiny.w0.fastq.gz.counts	tiny.wb.fastq.gz.counts
+wc	tiny.w0.fastq.gz.counts	tiny.wc.fastq.gz.counts

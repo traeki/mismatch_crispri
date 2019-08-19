@@ -154,16 +154,18 @@ def all_single_variants(parents):
     pairrows.append({'original':original, 'variant':variant})
   return pd.DataFrame(pairrows)
 
-def build_and_filter_pairs(targetfile, loci):
-  parents_frame = pd.read_csv(targetfile, sep='\t')
-  antisense_rows = parents_frame.loc[parents_frame.transdir=='anti']
+def filter_targets(parentframe, loci):
+  antisense_rows = parentframe.loc[parentframe.transdir=='anti']
   important_rows = antisense_rows.loc[antisense_rows.locus_tag.isin(loci)]
   dupmask = ~important_rows.target.duplicated(keep=False)
-  important_rows = important_rows.loc[dupmask]
-  parents = important_rows.target
+  unique_rows = important_rows.loc[dupmask]
+  return unique_rows
+
+def build_pairs(targetframe, loci):
+  parents = targetframe.target
   origvars = all_single_variants(parents)
-  locmap = important_rows[['target', 'locus_tag']].set_index('target').locus_tag
-  pammap = important_rows[['target', 'pam']].set_index('target').pam
+  locmap = targetframe[['target', 'locus_tag']].set_index('target').locus_tag
+  pammap = targetframe[['target', 'pam']].set_index('target').pam
   origvars['locus_tag'] = origvars.original.map(locmap)
   origvars['pam'] = origvars.original.map(pammap)
   return origvars
