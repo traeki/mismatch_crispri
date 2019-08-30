@@ -9,6 +9,7 @@ import shutil
 import sys
 
 from matplotlib import pyplot as plt
+import scipy.stats as st
 import seaborn as sns
 
 logging.basicConfig(level=logging.INFO,
@@ -35,6 +36,23 @@ def parse_args():
   return args
 
 
+def plot_gvk(data, name, plotfile, *, color=True):
+  figure = plt.figure(figsize=(6,6))
+  data = data.dropna(subset=['knockdown', 'gamma'])
+  prs, pval = st.pearsonr(data.knockdown, -data.gamma)
+  hue = (color and 'original' or None)
+  plot = sns.scatterplot('knockdown', 'gamma', data=data, hue=hue,
+                         s=10, alpha=1, edgecolor='none', legend=False)
+  plt.text(0, -1.1, 'Pearson R: {prs}'.format(**locals()))
+  plt.title('{name}\nKnockdown vs. Gamma'.format(**vars()))
+  plt.xlim(-0.1, 1.1)
+  plt.ylim(-1.3, 0.1)
+  plt.xlabel('Knockdown (predicted)')
+  plt.ylabel('Pooled-growth gamma')
+  plt.tight_layout()
+  plt.savefig(plotfile, dpi=300)
+  plt.close('all')
+
 def main():
   args = parse_args()
   # reset PLOTDIR
@@ -46,19 +64,11 @@ def main():
   plotdir.mkdir(parents=True, exist_ok=True)
   # draw gene-by-gene scatterplots
   logging.info('Drawing plots...')
+  plotfile = plotdir / '.'.join(['gvk', 'overall', 'png'])
+  plot_gvk(data, 'OVERALL', plotfile, color=False)
   for gene, group in data.groupby('gene'):
     plotfile = plotdir / '.'.join(['gvk', gene, 'png'])
-    figure = plt.figure(figsize=(6,6))
-    plot = sns.scatterplot('knockdown', 'gamma', data=group, hue='original',
-                           s=10, alpha=1, edgecolor='none', legend=False)
-    plt.title('{gene}\nKnockdown vs. Gamma'.format(**vars()))
-    plt.xlim(-0.1, 1.1)
-    plt.ylim(-1.3, 0.1)
-    plt.xlabel('Knockdown (predicted)')
-    plt.ylabel('Pooled-growth gamma')
-    plt.tight_layout()
-    plt.savefig(plotfile, dpi=300)
-    plt.close('all')
+    plot_gvk(group, gene, plotfile)
 
 ##############################################
 if __name__ == "__main__":
