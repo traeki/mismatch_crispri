@@ -18,12 +18,12 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
 np.set_printoptions(precision=4, suppress=True)
 
-def relgamma_bins():
+def gamma_bins():
   return np.linspace(BIN_MIN, BIN_MAX, NBINS-1)
 
-def bin_relgammas(relgammas, bins):
-  rgbins = np.digitize(relgammas, bins)
-  return rgbins
+def bin_gammas(gammas, bins):
+  bins = np.digitize(gammas, bins)
+  return bins
 
 def pick_n_parents(locus_preds, locus_targets, n):
   chosen = Counter()
@@ -104,8 +104,8 @@ def choose_n_by_bin(data, binnable, n):
       logging.warning(template.format(**locals()))
     return random.sample(set(data.variant), n)
   # ascribe bins
-  rgbins = relgamma_bins()
-  usable['bin'] = bin_relgammas(usable[binnable], rgbins)
+  bins = gamma_bins()
+  usable['bin'] = bin_gammas(usable[binnable], bins)
   # choose guides for each bin (skipping 0)
   chosen = set()
   bins = list(range(NBINS))
