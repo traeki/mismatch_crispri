@@ -17,11 +17,9 @@ NORM_SIZE = float(100 * 1000 * 1000)
 MIN_START_READS = 100
 PSEUDO = 1
 
-def get_start_mask(startfile, endfile):
+def get_start_mask(startfile):
   start = pd.read_csv(startfile, sep='\t', header=None,
                       names=['variant','reads'], index_col='variant')
-  end = pd.read_csv(endfile, sep='\t', header=None,
-                    names=['variant','reads'], index_col='variant')
   start_mask = start.reads > MIN_START_READS
   start_mask.name = 'start_mask'
   return start_mask
@@ -38,7 +36,7 @@ def get_controlset(controlfile):
   return set(controlframe.variant)
 
 def compute_gamma(startfile, endfile, controlset, gt):
-  start_mask = get_start_mask(startfile, endfile)
+  start_mask = get_start_mask(startfile)
   start = log_counts(startfile)
   end = log_counts(endfile)
   diff = end - start
