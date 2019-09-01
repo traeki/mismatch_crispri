@@ -1,6 +1,8 @@
 mismatch_crispri
 ================
 
+Author: John S. Hawkins [really@gmail.com]
+
 Python scripts to facilitate the design of single-mismatch CRISPRi guide
 libraries and analyze the results of pooled growth experiments using those
 libraries.
