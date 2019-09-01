@@ -61,7 +61,9 @@ def main():
   logging.info('Reading targets from {args.targetfile}...'.format(**locals()))
   logging.info('Building variants for {args.locifile}...'.format(**locals()))
   loci = set(pd.read_csv(args.locifile, sep='\t', header=None)[0])
-  pair_frame = cl.build_and_filter_pairs(args.targetfile, loci)
+  targetframe = pd.read_csv(args.targetfile, sep='\t')
+  filtered = cl.filter_targets(targetframe, loci)
+  pair_frame = cl.build_pairs(filtered, loci)
   pair_frame['y_pred'] = -(ml.predict_mismatch_scores(pair_frame))
   all_targets = pd.read_csv(args.targetfile, sep='\t')
   important = set(pd.read_csv(args.locifile, sep='\t', header=None)[0])
@@ -72,6 +74,9 @@ def main():
     template = 'Examining options for locus_tag: {locus}...'
     logging.info(template.format(**locals()))
     locus_preds = pair_frame.loc[pair_frame.locus_tag == locus]
+    if len(locus_preds) == 0:
+      logging.warn('...NO OPTIONS FOUND.')
+      continue
     locus_targets = all_targets.loc[all_targets.locus_tag == locus]
     parents = cl.pick_n_parents(locus_preds, locus_targets, args.families)
     # TODO(jsh): why isn't the list of parents limited to just 10???

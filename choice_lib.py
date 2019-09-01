@@ -102,7 +102,7 @@ def choose_n_by_bin(data, binnable, n):
     if data.shape[0] < n:
       template = 'Fewer than {n} guides exist for locus {locus}'
       logging.warning(template.format(**locals()))
-    return random.sample(set(data.variant), n)
+    return set(usable.variant)
   # ascribe bins
   bins = gamma_bins()
   usable['bin'] = bin_gammas(usable[binnable], bins)
