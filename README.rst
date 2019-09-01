@@ -46,9 +46,9 @@ Designing Guides
 The first step for most users will be to design a guide library.  First you
 will need to locate/generate the following prerequisites:
 
-* TARGETFILE: generally the output of www.github.com/traeki/sgrna_design.tsv,
-  this is a tab-separated-value file containing annotated targets for a
-  genome.
+* TARGETFILE: generally the output of
+  https://www.github.com/traeki/sgrna_design, this is a tab-separated-value
+  file containing annotated targets for a genome.
 
 * LOCIFILE: a file containing one locus_tag per line, matching the locus_tag
   column of the TARGETFILE.  The code will only design guides for the listed
