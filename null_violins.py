@@ -90,7 +90,7 @@ def main():
   sns.violinplot(x='name', y='gamma', data=subset, scale='width')
 
   plt.tight_layout()
-  plt.savefig(args.pngfile, dpi=300)
+  plt.savefig(args.pngfile, dpi=600)
   plt.close('all')
 
 ##############################################

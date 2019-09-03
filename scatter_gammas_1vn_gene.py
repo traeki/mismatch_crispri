@@ -108,7 +108,7 @@ def main():
     plt.xlabel(args.xname)
     plt.title(gene)
     plt.tight_layout()
-    plt.savefig(plotfile, dpi=300)
+    plt.savefig(plotfile, dpi=600)
     plt.close('all')
 
 ##############################################

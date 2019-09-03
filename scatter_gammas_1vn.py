@@ -18,6 +18,7 @@ _PACKAGEDIR = pathlib.Path(__file__).parent
 TESTDIR = _PACKAGEDIR / 'testdata'
 _CODEFILE = pathlib.Path(__file__)
 
+GAMMARANGE = [-1.3, 0.1]
 
 def parse_args():
   """Read in the arguments for the sgrna library construction code."""
@@ -50,6 +51,19 @@ def parse_args():
       '--pngfile', type=str,
       help='file: output location for scatterplot',
       required=True)
+  parser.add_argument(
+      '--shrink', dest='shrink',
+      action='store_true')
+  parser.add_argument(
+      '--no-shrink', dest='shrink',
+      action='store_false')
+  parser.add_argument(
+      '--midline', dest='midline',
+      action='store_true')
+  parser.add_argument(
+      '--no-midline', dest='midline',
+      action='store_false')
+  parser.set_defaults(shrink=False, midline=False)
   args = parser.parse_args()
   assert len(args.ygammas) == len(args.yname)
   return args
@@ -78,21 +92,26 @@ def main():
     hues.append(yd)
   ydata = pd.concat(hues, axis='index')
   ydata = ydata.loc[~ydata.variant.isin(controls)]
+  if args.shrink:
+    sickside = 1.1 * min(ydata.gamma.min(), ydata.base.min())
+    GAMMARANGE[0] = sickside
   logging.info('Drawing plot...')
   figure = plt.figure(figsize=(6,6))
-  plt.xlim(-1.3, 0.1)
-  plt.ylim(-1.3, 0.1)
+  plt.xlim(*GAMMARANGE)
+  plt.ylim(*GAMMARANGE)
   if len(args.yname) == 1:
     plot = sns.scatterplot('base', 'gamma', data=ydata, hue='name',
-                           s=5, alpha=0.5, edgecolor='none', legend=False)
+                           s=10, alpha=1, edgecolor='none', legend=False)
     plt.ylabel(args.yname[0])
   else:
     plot = sns.scatterplot('base', 'gamma', data=ydata, hue='name',
-                           s=5, alpha=0.5, edgecolor='none', legend='brief')
+                           s=10, alpha=1, edgecolor='none', legend='brief')
     plt.ylabel('')
+  if args.midline:
+    plt.plot(GAMMARANGE, GAMMARANGE, 'b--', linewidth=0.5)
   plt.xlabel(args.xname)
   plt.tight_layout()
-  plt.savefig(args.pngfile, dpi=300)
+  plt.savefig(args.pngfile, dpi=600)
   plt.close('all')
 
 ##############################################

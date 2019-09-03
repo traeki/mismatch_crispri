@@ -63,21 +63,22 @@ def main():
   ydata = pd.read_csv(args.ygammas, sep='\t')
   yprs = el.pearsons_by_gene(ydata)
 
+  hues = ydata.groupby('gene').gamma.min().abs()
+
   data = pd.concat([xprs, yprs], axis='columns')
   data.columns = [args.xname, args.yname]
 
   fig = plt.figure(figsize=(6,6))
   sns.scatterplot(args.xname, args.yname, data=data,
-                  s=5, alpha=0.5, edgecolor='none')
+                  hue=hues, legend=False,
+                  s=10, alpha=1, edgecolor='none')
 
-  template = 'Pearson R Comparison\n{args.xname} vs {args.yname}'
-  plt.title(template.format(**vars()))
   plt.xlim(-1.1, 1.1)
   plt.ylim(-1.1, 1.1)
   plt.xlabel(args.xname)
   plt.ylabel(args.yname)
   plt.tight_layout()
-  plt.savefig(args.pngfile, dpi=300)
+  plt.savefig(args.pngfile, dpi=600)
   plt.close('all')
 
 ##############################################

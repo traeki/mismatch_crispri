@@ -9,6 +9,7 @@ import shutil
 import sys
 
 from matplotlib import pyplot as plt
+import numpy as np
 import scipy.stats as st
 import seaborn as sns
 
@@ -39,18 +40,21 @@ def parse_args():
 def plot_gvk(data, name, plotfile, *, color=True):
   figure = plt.figure(figsize=(6,6))
   data = data.dropna(subset=['knockdown', 'gamma'])
-  prs, pval = st.pearsonr(data.knockdown, -data.gamma)
+  if len(data) >= 2:
+    prs, _ = st.pearsonr(data.knockdown, -data.gamma)
+  else:
+    prs = np.nan
   hue = (color and 'original' or None)
   plot = sns.scatterplot('knockdown', 'gamma', data=data, hue=hue,
                          s=10, alpha=1, edgecolor='none', legend=False)
-  plt.text(0, -1.1, 'Pearson R: {prs}'.format(**locals()))
-  plt.title('{name}\nKnockdown vs. Gamma'.format(**vars()))
+  plt.text(0, -1.1, 'Pearson R: {prs:.2f}'.format(**locals()))
+  plt.title('{name}'.format(**vars()))
   plt.xlim(-0.1, 1.1)
   plt.ylim(-1.3, 0.1)
   plt.xlabel('Knockdown (predicted)')
   plt.ylabel('Pooled-growth gamma')
   plt.tight_layout()
-  plt.savefig(plotfile, dpi=300)
+  plt.savefig(plotfile, dpi=600)
   plt.close('all')
 
 def main():

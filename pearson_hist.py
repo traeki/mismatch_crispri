@@ -55,13 +55,13 @@ def main():
   sns.distplot(prs.dropna(), norm_hist=True)
   medprs = prs.median()
 
-  plt.text(0, 1, 'median: {medprs}'.format(**locals()))
+  plt.text(0, 1, 'median: {medprs:.2f}'.format(**locals()))
   template = 'Pearson Correlation Distribution for {args.name}'
   plt.title(template.format(**vars()))
   plt.xlim(-0.1, 1.1)
   plt.xlabel(args.name)
   plt.tight_layout()
-  plt.savefig(args.pngfile, dpi=300)
+  plt.savefig(args.pngfile, dpi=600)
   plt.close('all')
 
 ##############################################

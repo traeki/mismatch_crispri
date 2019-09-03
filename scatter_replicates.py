@@ -28,10 +28,6 @@ def parse_args():
       help='file: unaveraged gammas by replicate',
       required=True)
   parser.add_argument(
-      '--organism', type=str,
-      help='str: name of the organism',
-      required=True)
-  parser.add_argument(
       '--pngfile', type=str,
       help='file: name of file for plot',
       required=True)
@@ -51,16 +47,14 @@ def main():
   subs = subs.unstack(level='rep')
   a = subs.columns[-2]
   b = subs.columns[-1]
-  template = 'Comparison of representative replicates for {args.organism}'
-  plt.title(template.format(**vars()))
   plt.xlim(-1.3, 0.1)
   plt.ylim(-1.3, 0.1)
   plot = sns.scatterplot(a, b, data=subs,
                          s=5, alpha=0.5, edgecolor='none')
-  plt.xlabel('gammas measured in replicate {a[1]}'.format(**locals()))
-  plt.ylabel('gammas measured in replicate {b[1]}'.format(**locals()))
+  plt.xlabel('gamma [replicate a]'.format(**locals()))
+  plt.ylabel('gamma [replicate b]'.format(**locals()))
   plt.tight_layout()
-  plt.savefig(args.pngfile, dpi=300)
+  plt.savefig(args.pngfile, dpi=600)
   plt.close('all')
 
 ##############################################

@@ -8,6 +8,7 @@ import shutil
 import sys
 
 from matplotlib import pyplot as plt
+import numpy as np
 import pandas as pd
 import scipy.stats as st
 import seaborn as sns
@@ -55,33 +56,22 @@ def main():
   data = pd.read_csv(args.gammas, sep='\t')
   bintally = el.bin_counts_by_gene(data)
 
-  fig, axes = plt.subplots(6, 1, figsize=(12,12), sharex=True)
 
-  for i in range(len(bintally.columns)-1):
-    bin = bintally[i].fillna(0)
-    ax = axes[i]
-    sns.distplot(bin, ax=ax, axlabel='bin[{i}]'.format(**locals()))
-    binmed = bin.median()
-    binlow = bin.quantile(0.05)
-    ax.text(0.8, 0.6,
-            'median: {binmed}\n95% >= {binlow}'.format(**locals()),
-            transform=ax.transAxes)
-  bin = bintally['mid'].fillna(0)
-  ax = axes[-1]
-  sns.distplot(bin, ax=ax, axlabel='[-0.9, -0.1]')
-  binmed = bin.median()
-  binlow = bin.quantile(0.05)
-  ax.text(0.8, 0.6,
+  fig, ax = plt.subplots(1, 1, figsize=(6,3), sharex=True)
+  gbin = bintally['mid'].fillna(0)
+  nbins = min(args.maxguides, 20)
+  bins = np.linspace(0,args.maxguides,nbins-1)
+  sns.distplot(gbin, ax=ax, axlabel='[-0.9, -0.1]', bins=bins, kde=False)
+  binmed = int(gbin.median())
+  binlow = int(gbin.quantile(0.05))
+  ax.text(0.45, 0.05,
           'median: {binmed}\n95% >= {binlow}'.format(**locals()),
           transform=ax.transAxes)
-
-  # plt.text(0, 1, 'median: {medprs}'.format(**locals()))
-  template = 'bin-hit Distributions for {args.name}'
-
-  fig.suptitle(template.format(**vars()))
-  plt.tight_layout()
   plt.xlim(0,args.maxguides)
-  plt.savefig(args.pngfile, dpi=300)
+  plt.xlabel('number of guides with gamma in [-0.9, -0.1]')
+  plt.ylabel('number of genes')
+  plt.tight_layout()
+  plt.savefig(args.pngfile, dpi=600)
   plt.close('all')
 
 ##############################################

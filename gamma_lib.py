@@ -13,7 +13,7 @@ import choice_lib as cl
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
 
-NORM_SIZE = float(100 * 1000 * 1000)
+NORM_SIZE = float(40 * 1000 * 1000)
 MIN_START_READS = 100
 PSEUDO = 1
 

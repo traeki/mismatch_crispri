@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO,
 _PACKAGEDIR = pathlib.Path(__file__).parent
 TESTDIR = _PACKAGEDIR / 'testdata'
 _CODEFILE = pathlib.Path(__file__)
-NORMCOUNT = 100*1000*1000
+NORMCOUNT = 40*1000*1000
 
 
 def parse_args():
@@ -89,7 +89,7 @@ def main():
   plt.xlabel(args.xname)
   plt.ylabel(args.yname)
   plt.tight_layout()
-  plt.savefig(args.pngfile, dpi=300)
+  plt.savefig(args.pngfile, dpi=600)
   plt.close('all')
 
 ##############################################

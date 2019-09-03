@@ -122,7 +122,7 @@ def plot_gvk_doubles(data, compcol, pngfile):
   prs, pval = st.pearsonr(data[compcol], -data.gamma)
   plot = sns.scatterplot(compcol, 'gamma', data=data, hue='gap',
                          s=10, alpha=1, edgecolor='none', legend=False)
-  plt.text(0, -1.1, 'Pearson R: {prs}'.format(**locals()))
+  plt.text(0, -1.1, 'Pearson R: {prs:.2f}'.format(**locals()))
   plt.xlim(-0.1, 1.1)
   plt.ylim(-1.3, 0.1)
   template = 'Knockdown (synthesis of predictions -- {compcol})'
@@ -130,7 +130,7 @@ def plot_gvk_doubles(data, compcol, pngfile):
   plt.ylabel('Pooled-growth gamma')
   plt.tight_layout()
   logging.info('Drawing {compcol} eval to {pngfile}...'.format(**locals()))
-  plt.savefig(pngfile, dpi=300)
+  plt.savefig(pngfile, dpi=600)
   plt.close('all')
 
 def main():
