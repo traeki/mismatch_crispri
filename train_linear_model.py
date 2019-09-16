@@ -41,6 +41,9 @@ nmm = origmap[['nmm']]
 origmap = origmap[['variant', 'original']]
 data = pd.DataFrame(origmap)
 data = data.merge(score, on='variant', how='left')
+outdata = data.copy(deep=True)
+outdata.columns = ['variant', 'original', 'relgfp']
+outdata.to_csv(JOINFILE, sep='\t', index=False)
 
 data = data.loc[nmm.nmm == 1]
 data = data.dropna(axis='rows')
@@ -49,5 +52,3 @@ y_data = data[['y']]
 
 ml.train_and_save_mismatch_model(mm_data, y_data)
 
-data.columns = ['variant', 'original', 'relgfp']
-data.to_csv(JOINFILE, sep='\t', index=False)
