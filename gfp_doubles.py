@@ -8,7 +8,6 @@ import sys
 
 import pandas as pd
 
-import gamma_lib as gl
 from matplotlib import pyplot as plt
 import model_lib as ml
 import scipy.stats as st
@@ -29,7 +28,6 @@ def parse_args():
   parser.add_argument(
       '--scorefile', type=str,
       help='file: tsv file of scored variants (flag repeats are averaged)',
-      action='append',
       required=True)
   parser.add_argument(
       '--origmap', type=str,
@@ -80,9 +78,9 @@ def bubble_gap(row):
 
 def plot_gvk_doubles(data, compcol, pngfile):
   figure = plt.figure(figsize=(6,6))
-  data = data.dropna(subset=[compcol, 'score'])
-  prs, pval = st.pearsonr(data[compcol], data.score)
-  plot = sns.scatterplot(compcol, 'score', data=data, hue='gap',
+  data = data.dropna(subset=[compcol, 'relgfp'])
+  prs, pval = st.pearsonr(data[compcol], data.relgfp)
+  plot = sns.scatterplot(compcol, 'relgfp', data=data, hue='gap',
                          s=10, alpha=1, edgecolor='none', legend=False)
   plt.text(0, 1.0, 'Pearson R: {prs:.2f}'.format(**locals()))
   plt.xlim(-0.1, 1.1)
@@ -97,16 +95,12 @@ def plot_gvk_doubles(data, compcol, pngfile):
 
 def main():
   args = parse_args()
-  scoresets = list()
-  for scorefile in args.scorefile:
-    ss = pd.read_csv(scorefile, sep='\t')
-    ss.columns = ['variant', 'gamma']
-    ss = ss.set_index('variant')
-    scoresets.append(ss)
-  flatframe = pd.concat(scoresets, axis='columns', sort=True)
-  flatframe = flatframe.mean(axis='columns')
+  ss = pd.read_csv(args.scorefile, sep='\t')
+  ss = ss[['variant', 'relgfp']]
+  ss = ss.set_index('variant')
+  flatframe = ss.sort_index()
   flatframe = flatframe.reset_index()
-  flatframe.columns = ['variant', 'gamma']
+  flatframe.columns = ['variant', 'relgfp']
   origmap = pd.read_csv(args.origmap, sep='\t').drop_duplicates()
   flatframe = flatframe.merge(origmap, on='variant')
   flatframe = flatframe.loc[double_mismatches(flatframe)]
@@ -121,7 +115,6 @@ def main():
   flatframe['b_pred'] = ml.predict_mismatch_scores(bref)
   flatframe['geometric'] = flatframe.a_pred * flatframe.b_pred
   flatframe['gap'] = flatframe.apply(bubble_gap, axis='columns')
-  flatframe['score'] = (-1 * flatframe.gamma)
   compcol = 'geometric'
   suffix = '.{compcol}.png'.format(**locals())
   pngfile = pathlib.Path(args.pngfile).with_suffix(suffix)
