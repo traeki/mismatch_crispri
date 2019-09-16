@@ -4,6 +4,7 @@
 import itertools
 import joblib
 import logging
+import os.path
 import pathlib
 import random
 import shutil
@@ -124,6 +125,8 @@ def train_and_save_mismatch_model(voframe, yframe):
   X = np.array(Xframe, dtype=float)
   y = np.array(yframe.y, dtype=float).reshape(-1, 1)
   shutil.rmtree(MODELDIR, ignore_errors=True)
+  while os.path.exists(MODELDIR):
+    continue
   MODELDIR.mkdir(parents=True, exist_ok=True)
   y_orig = y
   X_scaler = skpreproc.StandardScaler()
