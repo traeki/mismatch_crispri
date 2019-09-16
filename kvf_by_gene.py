@@ -25,36 +25,36 @@ def parse_args():
   parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-      '--meangammas', type=str,
-      help='file: file containing averaged gammas (i.e. ???.gammas.mean.tsv)',
-      default=str(TESTDIR / 'gammas.mean.tsv'))
+      '--meanrelfit', type=str,
+      help='file: file containing averaged relfit (e.g. relfit.mean.tsv)',
+      default=str(TESTDIR / 'relfit.mean.tsv'))
   parser.add_argument(
       '--plotdir', type=str,
       help='directory: directory for plots (WARNING: will be created and cleared)',
-      default=str(TESTDIR / 'gvkplots'))
+      default=str(TESTDIR / 'kvf.plots'))
   args = parser.parse_args()
   return args
 
 
-def plot_gvk(data, name, plotfile, *, color=True):
-  data = data.dropna(subset=['knockdown', 'gamma'])
+def plot_kvf(data, name, plotfile, *, color=True):
+  data = data.dropna(subset=['knockdown', 'relfit'])
   if len(data) < 1:
     logging.warn('No data to plot for {name}'.format(**locals()))
     return
   if len(data) > 1:
-    prs, _ = st.pearsonr(data.knockdown, -data.gamma)
+    prs, _ = st.pearsonr(data.knockdown, data.relfit)
   else:
     prs = 0
   figure = plt.figure(figsize=(6,6))
   hue = (color and 'original' or None)
-  plot = sns.scatterplot('knockdown', 'gamma', data=data, hue=hue,
+  plot = sns.scatterplot('knockdown', 'relfit', data=data, hue=hue,
                          s=10, alpha=1, edgecolor='none', legend=False)
   plt.text(0, -1.1, 'Pearson R: {prs:.2f}'.format(**locals()))
-  plt.title('{name}\nKnockdown vs. Gamma'.format(**vars()))
+  plt.title('{name}\nKnockdown vs. Relative Fitness'.format(**vars()))
   plt.xlim(-0.1, 1.1)
-  plt.ylim(-1.3, 0.1)
+  plt.ylim(-0.3, 1.1)
   plt.xlabel('Knockdown (predicted)')
-  plt.ylabel('Pooled-growth gamma')
+  plt.ylabel('Relative Pooled-growth Fitness')
   plt.tight_layout()
   plt.savefig(plotfile, dpi=300)
   plt.close('all')
@@ -62,7 +62,7 @@ def plot_gvk(data, name, plotfile, *, color=True):
 def main():
   args = parse_args()
   # reset PLOTDIR
-  data = pd.read_csv(args.meangammas, sep='\t')
+  data = pd.read_csv(args.meanrelfit, sep='\t')
   data.set_index('variant', inplace=True)
   data['knockdown'] = data['y_pred']
   plotdir = pathlib.Path(args.plotdir)
@@ -70,11 +70,11 @@ def main():
   plotdir.mkdir(parents=True, exist_ok=True)
   # draw gene-by-gene scatterplots
   logging.info('Drawing plots...')
-  plotfile = plotdir / '.'.join(['gvk', 'overall', 'png'])
-  plot_gvk(data, 'OVERALL', plotfile, color=False)
+  plotfile = plotdir / '.'.join(['kvf', 'overall', 'png'])
+  plot_kvf(data, 'OVERALL', plotfile, color=False)
   for gene, group in data.groupby('gene'):
-    plotfile = plotdir / '.'.join(['gvk', gene, 'png'])
-    plot_gvk(group, gene, plotfile)
+    plotfile = plotdir / '.'.join(['kvf', gene, 'png'])
+    plot_kvf(group, gene, plotfile)
 
 ##############################################
 if __name__ == "__main__":

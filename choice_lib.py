@@ -10,19 +10,19 @@ import numpy as np
 import pandas as pd
 
 BASES = 'ACGT'
-BIN_MIN = -0.9
-BIN_MAX = -0.1
+BIN_MIN = 0.1
+BIN_MAX = 0.9
 NBINS = 5
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
 np.set_printoptions(precision=4, suppress=True)
 
-def gamma_bins():
+def pred_bins():
   return np.linspace(BIN_MIN, BIN_MAX, NBINS-1)
 
-def bin_gammas(gammas, bins):
-  bins = np.digitize(gammas, bins)
+def bin_preds(preds, bins):
+  bins = np.digitize(preds, bins)
   return bins
 
 def pick_n_parents(locus_preds, locus_targets, n):
@@ -104,8 +104,8 @@ def choose_n_by_bin(data, binnable, n):
       logging.warning(template.format(**locals()))
     return set(usable.variant)
   # ascribe bins
-  bins = gamma_bins()
-  usable['bin'] = bin_gammas(usable[binnable], bins)
+  bins = pred_bins()
+  usable['bin'] = bin_pred(usable[binnable], bins)
   # choose guides for each bin (skipping 0)
   chosen = set()
   bins = list(range(NBINS))

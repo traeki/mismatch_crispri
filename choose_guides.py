@@ -64,7 +64,7 @@ def main():
   targetframe = pd.read_csv(args.targetfile, sep='\t')
   filtered = cl.filter_targets(targetframe, loci)
   pair_frame = cl.build_pairs(filtered, loci)
-  pair_frame['y_pred'] = -(ml.predict_mismatch_scores(pair_frame))
+  pair_frame['y_pred'] = ml.predict_mismatch_scores(pair_frame)
   all_targets = pd.read_csv(args.targetfile, sep='\t')
   important = set(pd.read_csv(args.locifile, sep='\t', header=None)[0])
   chosen_loci = important
@@ -79,8 +79,6 @@ def main():
       continue
     locus_targets = all_targets.loc[all_targets.locus_tag == locus]
     parents = cl.pick_n_parents(locus_preds, locus_targets, args.families)
-    # TODO(jsh): why isn't the list of parents limited to just 10???
-    # ipdb.set_trace()
     if args.divide_evenly:
       guides_per_parent = args.n // args.families
       guides[locus] = cl.choose_n_for_each(parents, locus_preds, guides_per_parent)
