@@ -80,13 +80,13 @@ def bubble_gap(row):
 
 def plot_gvk_doubles(data, compcol, pngfile):
   figure = plt.figure(figsize=(6,6))
-  data = data.dropna(subset=[compcol, 'gamma'])
-  prs, pval = st.pearsonr(data[compcol], -data.gamma)
-  plot = sns.scatterplot(compcol, 'gamma', data=data, hue='gap',
+  data = data.dropna(subset=[compcol, 'score'])
+  prs, pval = st.pearsonr(data[compcol], data.score)
+  plot = sns.scatterplot(compcol, 'score', data=data, hue='gap',
                          s=10, alpha=1, edgecolor='none', legend=False)
-  plt.text(0, -1.1, 'Pearson R: {prs:.2f}'.format(**locals()))
+  plt.text(0, 1.0, 'Pearson R: {prs:.2f}'.format(**locals()))
   plt.xlim(-0.1, 1.1)
-  plt.ylim(-1.3, 0.1)
+  plt.ylim(-0.1, 1.1)
   template = 'Knockdown (synthesis of predictions -- {compcol})'
   plt.xlabel(template.format(**locals()))
   plt.ylabel('FACS-seq score')
@@ -100,8 +100,6 @@ def main():
   scoresets = list()
   for scorefile in args.scorefile:
     ss = pd.read_csv(scorefile, sep='\t')
-    # 'gamma' is a shortcut --
-    #    I don't want to chase label collisions, for (::ahem::) a one-off
     ss.columns = ['variant', 'gamma']
     ss = ss.set_index('variant')
     scoresets.append(ss)
@@ -109,12 +107,12 @@ def main():
   flatframe = flatframe.mean(axis='columns')
   flatframe = flatframe.reset_index()
   flatframe.columns = ['variant', 'gamma']
-  origmap = pd.read_csv(args.origmap, sep='\t')
+  origmap = pd.read_csv(args.origmap, sep='\t').drop_duplicates()
   flatframe = flatframe.merge(origmap, on='variant')
   flatframe = flatframe.loc[double_mismatches(flatframe)]
   subvars = flatframe.apply(sub_variants, axis='columns')
   flatframe = pd.concat([flatframe, subvars], axis='columns')
-  flatframe = flatframe.reset_index()
+  flatframe = flatframe.reset_index(drop=True)
   aref = pd.DataFrame(flatframe[['original', 'vara']])
   aref.columns = ['original', 'variant']
   flatframe['a_pred'] = ml.predict_mismatch_scores(aref)
@@ -122,14 +120,12 @@ def main():
   bref.columns = ['original', 'variant']
   flatframe['b_pred'] = ml.predict_mismatch_scores(bref)
   flatframe['geometric'] = flatframe.a_pred * flatframe.b_pred
-  flatframe['arithmetic'] = (flatframe.a_pred + flatframe.b_pred - 1).clip(0)
-  flatframe['higher'] = flatframe[['a_pred', 'b_pred']].max(axis='columns')
-  flatframe['lower'] = flatframe[['a_pred', 'b_pred']].min(axis='columns')
   flatframe['gap'] = flatframe.apply(bubble_gap, axis='columns')
-  for compcol in ['geometric', 'arithmetic', 'higher', 'lower']:
-    suffix = '.{compcol}.png'.format(**locals())
-    pngfile = pathlib.Path(args.pngfile).with_suffix(suffix)
-    plot_gvk_doubles(flatframe, compcol, pngfile)
+  flatframe['score'] = (-1 * flatframe.gamma)
+  compcol = 'geometric'
+  suffix = '.{compcol}.png'.format(**locals())
+  pngfile = pathlib.Path(args.pngfile).with_suffix(suffix)
+  plot_gvk_doubles(flatframe, compcol, pngfile)
 
 ##############################################
 if __name__ == "__main__":

@@ -51,15 +51,17 @@ def main():
   data = pd.read_csv(args.gammas, sep='\t')
   prs = el.pearsons_by_gene(data)
 
-  fig = plt.figure(figsize=(8,4))
+  fig, ax = plt.subplots(1, 1, figsize=(6,3), sharex=True)
   sns.distplot(prs.dropna(), norm_hist=True)
   medprs = prs.median()
 
-  plt.text(0, 1, 'median: {medprs:.2f}'.format(**locals()))
+  ax.text(0.05, 0.90,
+          'median: {medprs:.2f}'.format(**locals()),
+          transform=ax.transAxes)
   template = 'Pearson Correlation Distribution for {args.name}'
   plt.title(template.format(**vars()))
   plt.xlim(-0.1, 1.1)
-  plt.xlabel(args.name)
+  plt.xlabel('Pearson R')
   plt.tight_layout()
   plt.savefig(args.pngfile, dpi=600)
   plt.close('all')

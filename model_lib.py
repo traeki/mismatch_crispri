@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 from pandas.api.types import CategoricalDtype
 from sklearn import preprocessing as skpreproc
+from sklearn.model_selection import GroupKFold
 from keras.layers import Dense
 from keras.models import Sequential
 
@@ -74,6 +75,40 @@ def _get_linear_encoder():
     row = pd.Series(features)
     return row
   return encoder
+
+def kfold_score_model(voframe, yframe):
+  if voframe.shape[0] != yframe.shape[0]:
+    logging.fatal('voframe and training values had different length')
+    sys.exit(2)
+  if 'variant' not in voframe.columns or 'original' not in voframe.columns:
+    logging.fatal('voframe missing variant and/or original')
+    sys.exit(2)
+  encoder = _get_linear_encoder()
+  encodings = voframe.apply(encoder, axis=1)
+  Xframe = encodings.set_index(voframe.variant)
+  Xframe = _expand_dummies(Xframe)
+  yframe = yframe.set_index(voframe.variant)
+  X = np.array(Xframe, dtype=float)
+  y = np.array(yframe.y, dtype=float).reshape(-1, 1)
+
+  grpmap = voframe.set_index('variant').original
+  kfolder = GroupKFold(n_splits=11)
+  cvs = list()
+  for train_index, test_index in kfolder.split(X, y, grpmap):
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
+    X_scaler = skpreproc.StandardScaler()
+    X_train = X_scaler.fit_transform(X_train)
+    y_scaler = skpreproc.StandardScaler()
+    y_train = y_scaler.fit_transform(y_train)
+    model = _build_linear_model(X_train.shape[1])
+    # Feed training Data
+    model.fit(X_train, y_train, epochs=_EPOCHS, batch_size=_BATCH_SIZE)
+    scores = model.evaluate(X_test, y_test, verbose=0)
+    cvs.append(scores[1])
+  m = np.mean(cvs)
+  v = np.std(cvs)
+  print("{m:.2f} (+/- {v:.2f})".format(**locals()))
 
 def train_and_save_mismatch_model(voframe, yframe):
   if voframe.shape[0] != yframe.shape[0]:

@@ -44,6 +44,10 @@ def parse_args():
       help='str: label name for y axis/legend',
       required=True)
   parser.add_argument(
+      '--ylabel', type=str,
+      help='str: override label for y axis',
+      default=None)
+  parser.add_argument(
       '--controls', type=str,
       help='file: list of control guides to exclude',
       default=None)
@@ -96,7 +100,11 @@ def main():
     figure = plt.figure(figsize=(6,6))
     plt.xlim(*GAMMARANGE)
     plt.ylim(*GAMMARANGE)
-    if len(args.yname) == 1:
+    if args.ylabel is not None:
+      plot = sns.scatterplot('base', 'gamma', data=group, hue='name',
+                             s=10, alpha=0.5, edgecolor='none', legend='brief')
+      plt.ylabel(args.ylabel)
+    elif len(args.yname) == 1:
       plot = sns.scatterplot('base', 'gamma', data=group, hue='name',
                              s=10, alpha=0.5, edgecolor='none', legend=False)
       plt.ylabel(args.yname[0])

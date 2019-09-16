@@ -10,6 +10,7 @@ import sys
 
 from matplotlib import pyplot as plt
 import seaborn as sns
+import scipy.stats as st
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s') 
@@ -41,7 +42,7 @@ def main():
   logging.info(template.format(**locals()))
   data = pd.read_csv(args.gammas, sep='\t')
   logging.info('Drawing plot...')
-  figure = plt.figure(figsize=(6,6))
+  fig, ax = plt.subplots(1, 1, figsize=(6,6))
   subs = data[['variant', 'rep', 'gamma']]
   subs = subs.set_index(['variant', 'rep'])
   subs = subs.unstack(level='rep')
@@ -53,6 +54,12 @@ def main():
                          s=5, alpha=0.5, edgecolor='none')
   plt.xlabel('gamma [replicate a]'.format(**locals()))
   plt.ylabel('gamma [replicate b]'.format(**locals()))
+  cleansubs = subs.dropna(subset=[a, b])
+  prs, _ = st.pearsonr(cleansubs[a], cleansubs[b])
+  ax.text(0.05, 0.95,
+          'Pearson R: {prs:.2f}'.format(**locals()),
+          transform=ax.transAxes)
+
   plt.tight_layout()
   plt.savefig(args.pngfile, dpi=600)
   plt.close('all')

@@ -61,6 +61,10 @@ def parse_args():
       '--growth', type=int,
       help='int: number of generations grown (in other words, g*t)',
       default=10)
+  parser.add_argument(
+      '--dumptsv', dest='dumptsv',
+      help='bool: if set, write a tsv dump of the data to {pngfile:base}.tsv',
+      action='store_true')
   args = parser.parse_args()
   return args
 
@@ -169,9 +173,11 @@ def main():
   if args.justgene is not None:
     flatframe = flatframe.loc[flatframe.gene == args.justgene]
     assert len(flatframe) > 0
+  flatframe = flatframe.reset_index(drop=True)
   aref = pd.DataFrame(flatframe[['original', 'vara']])
   aref.columns = ['original', 'variant']
-  flatframe['a_pred'] = ml.predict_mismatch_scores(aref)
+  check =  ml.predict_mismatch_scores(aref)
+  flatframe['a_pred'] = check
   bref = pd.DataFrame(flatframe[['original', 'varb']])
   bref.columns = ['original', 'variant']
   flatframe['b_pred'] = ml.predict_mismatch_scores(bref)
@@ -180,6 +186,9 @@ def main():
   flatframe['higher'] = flatframe[['a_pred', 'b_pred']].max(axis='columns')
   flatframe['lower'] = flatframe[['a_pred', 'b_pred']].min(axis='columns')
   flatframe['gap'] = flatframe.apply(bubble_gap, axis='columns')
+  if args.dumptsv:
+    tsvfile = pathlib.Path(args.pngfile).with_suffix('.tsv')
+    flatframe.to_csv(tsvfile, sep='\t', index=False)
   for compcol in ['geometric', 'arithmetic', 'higher', 'lower']:
     if args.justgene is not None:
       suffix = '.{args.justgene}.{compcol}.png'.format(**locals())

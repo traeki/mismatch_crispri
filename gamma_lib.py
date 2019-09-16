@@ -50,6 +50,19 @@ def compute_gamma(startfile, endfile, controlset, gt):
   frame.index.name = 'variant'
   return frame
 
+def compute_logdiff(startfile, endfile, controlset):
+  start_mask = get_start_mask(startfile)
+  start = log_counts(startfile)
+  end = log_counts(endfile)
+  diff = end - start
+  diff = diff.where(start_mask, np.nan)
+  diff.name = 'lfc'
+  masked = diff.where(start_mask)
+  columns = [masked, start_mask]
+  frame = pd.concat(columns, sort=True, axis='columns')
+  frame.index.name = 'variant'
+  return frame
+
 def annotate_variants(variants, targetfile, locifile, genbank):
   annoframe = pd.DataFrame(index=variants)
   loci = set(pd.read_csv(locifile, sep='\t', header=None)[0])

@@ -61,15 +61,15 @@ def main():
   gbin = bintally['mid'].fillna(0)
   nbins = min(args.maxguides, 20)
   bins = np.linspace(0,args.maxguides,nbins-1)
-  sns.distplot(gbin, ax=ax, axlabel='[-0.9, -0.1]', bins=bins, kde=False)
+  sns.distplot(gbin, ax=ax, bins=bins, kde=False)
   binmed = int(gbin.median())
   binlow = int(gbin.quantile(0.05))
-  ax.text(0.45, 0.05,
+  ax.text(0.05, 0.80,
           'median: {binmed}\n95% >= {binlow}'.format(**locals()),
           transform=ax.transAxes)
   plt.xlim(0,args.maxguides)
-  plt.xlabel('number of guides with gamma in [-0.9, -0.1]')
-  plt.ylabel('number of genes')
+  plt.xlabel('# of guides w/ 10% to 90% wildtype growth rate')
+  plt.ylabel('# of genes')
   plt.tight_layout()
   plt.savefig(args.pngfile, dpi=600)
   plt.close('all')

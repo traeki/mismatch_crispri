@@ -44,6 +44,10 @@ def parse_args():
       help='str: label name for y axis/legend',
       required=True)
   parser.add_argument(
+      '--ylabel', type=str,
+      help='str: override label for y axis',
+      default=None)
+  parser.add_argument(
       '--controls', type=str,
       help='file: list of control guides to exclude',
       default=None)
@@ -51,6 +55,10 @@ def parse_args():
       '--pngfile', type=str,
       help='file: output location for scatterplot',
       required=True)
+  parser.add_argument(
+      '--remove', type=str,
+      action='append',
+      help='str: add a gene to the filter (i.e. drop it from plot)')
   parser.add_argument(
       '--shrink', dest='shrink',
       action='store_true')
@@ -66,6 +74,8 @@ def parse_args():
   parser.set_defaults(shrink=False, midline=False)
   args = parser.parse_args()
   assert len(args.ygammas) == len(args.yname)
+  if args.remove is None:
+    args.remove = list()
   return args
 
 
@@ -95,17 +105,23 @@ def main():
   if args.shrink:
     sickside = 1.1 * min(ydata.gamma.min(), ydata.base.min())
     GAMMARANGE[0] = sickside
+  ydata = ydata.loc[~ydata.gene.isin(args.remove)]
+  ydata = ydata.dropna(subset=['gene'], axis='index')
   logging.info('Drawing plot...')
   figure = plt.figure(figsize=(6,6))
   plt.xlim(*GAMMARANGE)
   plt.ylim(*GAMMARANGE)
-  if len(args.yname) == 1:
+  if args.ylabel is not None:
     plot = sns.scatterplot('base', 'gamma', data=ydata, hue='name',
-                           s=10, alpha=1, edgecolor='none', legend=False)
+                           s=10, alpha=0.5, edgecolor='none', legend='brief')
+    plt.ylabel(args.ylabel)
+  elif len(args.yname) == 1:
+    plot = sns.scatterplot('base', 'gamma', data=ydata, hue='name',
+                           s=10, alpha=0.5, edgecolor='none', legend=False)
     plt.ylabel(args.yname[0])
   else:
     plot = sns.scatterplot('base', 'gamma', data=ydata, hue='name',
-                           s=10, alpha=1, edgecolor='none', legend='brief')
+                           s=10, alpha=0.5, edgecolor='none', legend='brief')
     plt.ylabel('')
   if args.midline:
     plt.plot(GAMMARANGE, GAMMARANGE, 'b--', linewidth=0.5)
