@@ -37,13 +37,19 @@ def parse_args():
 
 
 def plot_gvk(data, name, plotfile, *, color=True):
-  figure = plt.figure(figsize=(6,6))
   data = data.dropna(subset=['knockdown', 'gamma'])
-  prs, pval = st.pearsonr(data.knockdown, -data.gamma)
+  if len(data) < 1:
+    logging.warn('No data to plot for {name}'.format(**locals()))
+    return
+  if len(data) > 1:
+    prs, _ = st.pearsonr(data.knockdown, -data.gamma)
+  else:
+    prs = 0
+  figure = plt.figure(figsize=(6,6))
   hue = (color and 'original' or None)
   plot = sns.scatterplot('knockdown', 'gamma', data=data, hue=hue,
                          s=10, alpha=1, edgecolor='none', legend=False)
-  plt.text(0, -1.1, 'Pearson R: {prs}'.format(**locals()))
+  plt.text(0, -1.1, 'Pearson R: {prs:.2f}'.format(**locals()))
   plt.title('{name}\nKnockdown vs. Gamma'.format(**vars()))
   plt.xlim(-0.1, 1.1)
   plt.ylim(-1.3, 0.1)

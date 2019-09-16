@@ -20,28 +20,27 @@ _CODEDIR = pathlib.Path(__file__).parent
 MODELDIR = _CODEDIR / 'model'
 GFPDIR = _CODEDIR / 'gfpdata'
 
-bsugfp = pd.read_csv(GFPDIR / 'gfp.bsu.facsseq.tsv', sep='\t')
-ecogfp = pd.read_csv(GFPDIR / 'gfp.eco.facsseq.tsv', sep='\t')
-origmap = pd.read_csv(GFPDIR / 'gfp.origmap.tsv', sep='\t')
+repfiles = ['bsu_biorep1.csv',
+            'bsu_biorep2.csv',
+            'eco_biorep1.csv',
+            'eco_biorep2.csv']
+replicates = list()
+for repfile in repfiles:
+  repdata = pd.read_csv(GFPDIR / repfile, index_col=0)
+  repdata = repdata[['relative']].dropna()
+  replicates.append(repdata)
+score = pd.concat(replicates, axis='columns', sort=True).mean(axis='columns')
+# "relative" in these files is (C/P)-1 ; downstream assumes C/P
+score = score + 1
+score = pd.DataFrame(score).reset_index()
+score.columns = ['variant', 'y']
 
+origmap = pd.read_csv(GFPDIR / 'gfp.origmap.tsv', sep='\t')
 nmm = origmap[['nmm']]
 origmap = origmap[['variant', 'original']]
-
-def relscore(gfpscore, vomap):
-  gfpscore = gfpscore.set_index('variant').facsseq
-  def lookup(x):
-    if x in gfpscore:
-      return gfpscore.loc[x]
-    else:
-      return np.nan
-  scoremap = vomap.applymap(lookup)
-  return (scoremap.variant / scoremap.original)
-
 data = pd.DataFrame(origmap)
-bsu_rs = relscore(bsugfp, origmap)
-eco_rs = relscore(ecogfp, origmap)
-score = pd.concat([bsu_rs, eco_rs], axis='columns').mean(axis='columns')
-data['y'] = score
+data = data.merge(score, on='variant', how='left')
+
 data = data.loc[nmm.nmm == 1]
 data = data.dropna(axis='rows')
 mm_data = data[['variant', 'original']]
