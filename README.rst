@@ -28,7 +28,11 @@ compute gammas
 
 ->
 
-analyze gammas
+convert to relfit
+
+->
+
+analyze relfit
 
 Training a Predictive Model
 ---------------------------
@@ -60,7 +64,7 @@ then call
 
 ::
 
-    ./choose_guides --usage
+    ./choose_guides -h
 
 to see the call signature.  --families, --n, and --divide_evenly control the
 size and diversity of the library.  --outfile specifies the destination for
@@ -87,7 +91,7 @@ is matching, depending on your DNA construct.  Call
 
 ::
 
-    ./count_guides.py --usage
+    ./count_guides.py -h
 
 to see rough call signature, with the aforementioned caveats.
 
@@ -115,7 +119,7 @@ have been constructed, use compute_gammas.py.  Run
 
 ::
 
-    ./compute_gammas.py --usage
+    ./compute_gammas.py -h
 
 for call signature information, and call
 
@@ -130,22 +134,46 @@ file (using the same name, with .mean included prior to the final suffix) with
 the replicate-averaged gamma values for each guide variant.
 
 
+Converting to Relative Fitness
+------------------------------
+
+For most purposes, it is easier to reason about relative fitness (growth rate
+as a fraction of wildtype growth rate) than about gamma.  Relative fitness is
+just (1 + γ), so the computation is simple, but for convenience we have a
+script that converts a tsv file from gamma to relfit.
+
+::
+
+    ./gamma_to_relfit.py -h
+
+for call signature information, and
+
+::
+
+    ./gamma_to_relfit.py --gammafile <infile> --relfitfile <outfile>
+
+to convert a file.  kvf_by_gene.py, below, assumes this has been done, and we
+recommend you do this as a matter of course before any other downstream
+analysis.  (Indeed, we may eventually change the code base to use this metric
+by default.)
+
+
 Analyze Gammas
 --------------
 
-Analysis will depend heavily on application.  We provide gvk_by_gene.py for
+Analysis will depend heavily on application.  We provide kvf_by_gene.py for
 simple visualization of prediction vs outcome, broken down by locus_tag.
 
 As usual,
 
 ::
 
-    ./gvk_by_gene.py -h
+    ./kfv_by_gene.py -h
 
 gives usage information, and
 
 ::
 
-    ./gvk_by_gene.py
+    ./kfv_by_gene.py
 
 with no arguments applies the script to the sample data in testdata/.
