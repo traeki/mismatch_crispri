@@ -19,13 +19,14 @@ logging.basicConfig(level=logging.INFO,
 _CODEDIR = pathlib.Path(__file__).parent
 MODELDIR = _CODEDIR / 'model'
 GFPDIR = _CODEDIR / 'gfpdata'
-
-repfiles = ['bsu_biorep1.csv',
+REPFILES = ['bsu_biorep1.csv',
             'bsu_biorep2.csv',
             'eco_biorep1.csv',
             'eco_biorep2.csv']
+JOINFILE = GFPDIR / 'joined_reps.tsv'
+
 replicates = list()
-for repfile in repfiles:
+for repfile in REPFILES:
   repdata = pd.read_csv(GFPDIR / repfile, index_col=0)
   repdata = repdata[['relative']].dropna()
   replicates.append(repdata)
@@ -47,3 +48,6 @@ mm_data = data[['variant', 'original']]
 y_data = data[['y']]
 
 ml.train_and_save_mismatch_model(mm_data, y_data)
+
+data.columns = ['variant', 'original', 'relgfp']
+data.to_csv(JOINFILE, sep='\t', index=False)
