@@ -52,7 +52,6 @@ def plot_kvf(data, name, plotfile, *, color=True):
                          s=10, alpha=1, edgecolor='none', legend=False)
   plt.text(0, -1.1, 'Pearson R: {prs:.2f}'.format(**locals()))
   plt.title('{name}\nKnockdown vs. Relative Fitness'.format(**vars()))
->>>>>>> master:kvf_by_gene.py
   plt.xlim(-0.1, 1.1)
   plt.ylim(-0.3, 1.1)
   plt.xlabel('Knockdown (predicted)')
