@@ -9,6 +9,7 @@ import shutil
 import sys
 
 from matplotlib import pyplot as plt
+import numpy as np
 import scipy.stats as st
 import seaborn as sns
 
@@ -42,21 +43,21 @@ def plot_kvf(data, name, plotfile, *, color=True):
     logging.warn('No data to plot for {name}'.format(**locals()))
     return
   if len(data) > 1:
-    prs, _ = st.pearsonr(data.knockdown, data.relfit)
+    prs, _ = st.pearsonr(data.knockdown, 1-data.relfit)
   else:
-    prs = 0
+    prs = np.nan
   figure = plt.figure(figsize=(6,6))
   hue = (color and 'original' or None)
   plot = sns.scatterplot('knockdown', 'relfit', data=data, hue=hue,
                          s=10, alpha=1, edgecolor='none', legend=False)
-  plt.text(0, -1.1, 'Pearson R: {prs:.2f}'.format(**locals()))
+  plt.text(0, -0.1, 'Pearson R: {prs:.2f}'.format(**locals()))
   plt.title('{name}\nKnockdown vs. Relative Fitness'.format(**vars()))
   plt.xlim(-0.1, 1.1)
   plt.ylim(-0.3, 1.1)
   plt.xlabel('Knockdown (predicted)')
   plt.ylabel('Relative Pooled-growth Fitness')
   plt.tight_layout()
-  plt.savefig(plotfile, dpi=300)
+  plt.savefig(plotfile, dpi=600)
   plt.close('all')
 
 def main():
