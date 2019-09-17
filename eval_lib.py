@@ -17,11 +17,9 @@ logging.basicConfig(level=logging.INFO,
 def pearsons_by_gene(frame):
   pearsons = dict()
   for gene, group in frame.groupby('gene'):
-    good = group.dropna(how='any', subset=['y_pred', 'gamma'])
-    predicted = good.y_pred
-    measured = -good.gamma
+    good = group.dropna(how='any', subset=['y_pred', 'relfit'])
     try:
-      prsrho, prspv = st.pearsonr(predicted, measured)
+      prsrho, prspv = st.pearsonr(good.y_pred, 1-good.relfit)
       pearsons[gene] = prsrho
     except ValueError:
       pearsons[gene] = np.nan
@@ -29,8 +27,8 @@ def pearsons_by_gene(frame):
   return result
 
 def bin_counts_by_gene(frame):
-  bin_edges = cl.gamma_bins()
-  frame['bin'] = cl.bin_gammas(frame.gamma, bin_edges)
+  bin_edges = cl.pred_bins()
+  frame['bin'] = cl.bin_preds(frame.relfit, bin_edges)
   bintally = frame.groupby('gene').bin.value_counts().unstack()
   bintally['mid'] = bintally[[1, 2, 3]].sum(axis='columns')
   return bintally

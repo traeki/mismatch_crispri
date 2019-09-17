@@ -122,16 +122,16 @@ def bubble_gap(row):
 
 def plot_gvk_doubles(data, compcol, pngfile):
   figure = plt.figure(figsize=(6,6))
-  data = data.dropna(subset=[compcol, 'gamma'])
-  prs, pval = st.pearsonr(data[compcol], -data.gamma)
-  plot = sns.scatterplot(compcol, 'gamma', data=data, hue='gap',
+  data = data.dropna(subset=[compcol, 'relfit'])
+  prs, pval = st.pearsonr(data[compcol], 1-data.relfit)
+  plot = sns.scatterplot(compcol, 'relfit', data=data,
                          s=10, alpha=1, edgecolor='none', legend=False)
-  plt.text(0, -1.1, 'Pearson R: {prs:.2f}'.format(**locals()))
+  plt.text(0, -0.1, 'Pearson R: {prs:.2f}'.format(**locals()))
   plt.xlim(-0.1, 1.1)
-  plt.ylim(-1.3, 0.1)
+  plt.ylim(-0.3, 1.1)
   template = 'Knockdown (synthesis of predictions -- {compcol})'
   plt.xlabel(template.format(**locals()))
-  plt.ylabel('Pooled-growth gamma')
+  plt.ylabel('Relative Pooled-growth Fitness')
   plt.tight_layout()
   logging.info('Drawing {compcol} eval to {pngfile}...'.format(**locals()))
   plt.savefig(pngfile, dpi=600)
@@ -167,6 +167,8 @@ def main():
   flatframe = flatgamma(annoframe, controls)
   flatframe = flatframe.drop(['locus_tag', 'gene'], axis='columns')
   flatframe = flatframe.reset_index()
+  flatframe.gamma = flatframe.gamma + 1
+  flatframe = flatframe.rename({'gamma':'relfit'}, axis='columns')
   subvars = flatframe.apply(sub_variants, axis='columns')
   flatframe = pd.concat([flatframe, subvars], axis='columns')
   flatframe = flatframe.merge(geneorig, on='original', how='left')
@@ -182,20 +184,17 @@ def main():
   bref.columns = ['original', 'variant']
   flatframe['b_pred'] = ml.predict_mismatch_scores(bref)
   flatframe['geometric'] = flatframe.a_pred * flatframe.b_pred
-  flatframe['arithmetic'] = (flatframe.a_pred + flatframe.b_pred - 1).clip(0)
-  flatframe['higher'] = flatframe[['a_pred', 'b_pred']].max(axis='columns')
-  flatframe['lower'] = flatframe[['a_pred', 'b_pred']].min(axis='columns')
   flatframe['gap'] = flatframe.apply(bubble_gap, axis='columns')
   if args.dumptsv:
     tsvfile = pathlib.Path(args.pngfile).with_suffix('.tsv')
     flatframe.to_csv(tsvfile, sep='\t', index=False)
-  for compcol in ['geometric', 'arithmetic', 'higher', 'lower']:
-    if args.justgene is not None:
-      suffix = '.{args.justgene}.{compcol}.png'.format(**locals())
-    else:
-      suffix = '.{compcol}.png'.format(**locals())
-    pngfile = pathlib.Path(args.pngfile).with_suffix(suffix)
-    plot_gvk_doubles(flatframe, compcol, pngfile)
+  compcol = 'geometric'
+  if args.justgene is not None:
+    suffix = '.{args.justgene}.{compcol}.png'.format(**locals())
+  else:
+    suffix = '.{compcol}.png'.format(**locals())
+  pngfile = pathlib.Path(args.pngfile).with_suffix(suffix)
+  plot_gvk_doubles(flatframe, compcol, pngfile)
 
 ##############################################
 if __name__ == "__main__":

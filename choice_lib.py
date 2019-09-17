@@ -105,7 +105,7 @@ def choose_n_by_bin(data, binnable, n):
     return set(usable.variant)
   # ascribe bins
   bins = pred_bins()
-  usable['bin'] = bin_pred(usable[binnable], bins)
+  usable['bin'] = bin_preds(usable[binnable], bins)
   # choose guides for each bin (skipping 0)
   chosen = set()
   bins = list(range(NBINS))

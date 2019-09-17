@@ -18,7 +18,7 @@ _PACKAGEDIR = pathlib.Path(__file__).parent
 TESTDIR = _PACKAGEDIR / 'testdata'
 _CODEFILE = pathlib.Path(__file__)
 
-GAMMARANGE = (-1.3, 0.1)
+RELFITRANGE = (-0.3, 1.1)
 
 def parse_args():
   """Read in the arguments for the sgrna library construction code."""
@@ -26,17 +26,17 @@ def parse_args():
   parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-      '--xgammas', type=str,
-      help='file: unique entries for gamma by variant -- x axis',
+      '--xrelfits', type=str,
+      help='file: unique entries for fitness by variant -- x axis',
       required=True)
   parser.add_argument(
       '--xname', type=str,
       help='str: label name for x axis',
       required=True)
   parser.add_argument(
-      '--ygammas', type=str,
+      '--yrelfits', type=str,
       action='append',
-      help='file: unique entries for gamma by variant -- y axis (repeatable)',
+      help='file: unique entries for fitness by variant -- y axis (repeatable)',
       required=True)
   parser.add_argument(
       '--yname', type=str,
@@ -60,8 +60,8 @@ def parse_args():
       help='str: template for filenames to write inside plotdir',
       default='1vn.scatter.png')
   args = parser.parse_args()
-  if len(args.ygammas) != len(args.yname):
-    logging.error('Must provide --yname for every instance of --ygammas.')
+  if len(args.yrelfits) != len(args.yname):
+    logging.error('Must provide --yname for every instance of --yrelfits.')
     sys.exit(3)
   return args
 
@@ -72,19 +72,19 @@ def main():
     controls = set(pd.read_csv(args.controls, header=None)[0])
   else:
     controls = set()
-  template = 'Reading X: {args.xname} from {args.xgammas}...'
+  template = 'Reading X: {args.xname} from {args.xrelfits}...'
   logging.info(template.format(**locals()))
-  xdata = pd.read_csv(args.xgammas, sep='\t')
-  data = xdata[['variant', 'gamma', 'gene']]
+  xdata = pd.read_csv(args.xrelfits, sep='\t')
+  data = xdata[['variant', 'relfit', 'gene']]
   data.columns = ['variant', 'base', 'gene']
   hues = list()
-  for yname, ygammas in zip(args.yname, args.ygammas):
-    template = 'Reading Y: {yname} from {ygammas}...'
+  for yname, yrelfits in zip(args.yname, args.yrelfits):
+    template = 'Reading Y: {yname} from {yrelfits}...'
     logging.info(template.format(**locals()))
-    yg = pd.read_csv(ygammas, sep='\t')
-    yg = yg[['variant', 'gamma']]
+    yg = pd.read_csv(yrelfits, sep='\t')
+    yg = yg[['variant', 'relfit']]
     yd = pd.merge(data, yg, on='variant', how='outer')
-    yd = yd.dropna(how='any', subset=['base', 'gamma'])
+    yd = yd.dropna(how='any', subset=['base', 'relfit'])
     yd['name'] = yname
     hues.append(yd)
   ydata = pd.concat(hues, axis='index')
@@ -98,21 +98,21 @@ def main():
     plotfile = (plotdir / args.pngfile).with_suffix(suffix)
     logging.info('Drawing plot for {gene}...'.format(**locals()))
     figure = plt.figure(figsize=(6,6))
-    plt.xlim(*GAMMARANGE)
-    plt.ylim(*GAMMARANGE)
+    plt.xlim(*RELFITRANGE)
+    plt.ylim(*RELFITRANGE)
     if args.ylabel is not None:
-      plot = sns.scatterplot('base', 'gamma', data=group, hue='name',
+      plot = sns.scatterplot('base', 'relfit', data=group, hue='name',
                              s=10, alpha=0.5, edgecolor='none', legend='brief')
       plt.ylabel(args.ylabel)
     elif len(args.yname) == 1:
-      plot = sns.scatterplot('base', 'gamma', data=group, hue='name',
+      plot = sns.scatterplot('base', 'relfit', data=group, hue='name',
                              s=10, alpha=0.5, edgecolor='none', legend=False)
       plt.ylabel(args.yname[0])
     else:
-      plot = sns.scatterplot('base', 'gamma', data=group, hue='name',
+      plot = sns.scatterplot('base', 'relfit', data=group, hue='name',
                              s=10, alpha=0.5, edgecolor='none', legend='brief')
       plt.ylabel('')
-    plt.plot(GAMMARANGE, GAMMARANGE, 'b--', linewidth=0.5)
+    plt.plot(RELFITRANGE, RELFITRANGE, 'b--', linewidth=0.5)
     plt.xlabel(args.xname)
     plt.title(gene)
     plt.tight_layout()

@@ -35,7 +35,7 @@ def parse_args():
       required=True)
   parser.add_argument(
       '--annofile', type=str,
-      help='file: gamma file for gene annotations',
+      help='file: fitness file for gene annotations',
       required=True)
   parser.add_argument(
       '--pngfile', type=str,
@@ -60,10 +60,6 @@ def main():
   pergene_file = pathlib.Path(args.pngfile)
   overall_file = pergene_file.with_suffix('.overall.png')
   data['logcount'] = np.log2(data['count'].clip(1))
-
-  import IPython; IPython.embed()
-  sys.exit(1)
-
   fig, ax = plt.subplots(1, 1, figsize=(6,3), sharex=True)
   bins = np.linspace(0,100,101)
   sns.distplot(genevals, ax=ax, bins=bins, kde=False)

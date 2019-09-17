@@ -18,7 +18,7 @@ _PACKAGEDIR = pathlib.Path(__file__).parent
 TESTDIR = _PACKAGEDIR / 'testdata'
 _CODEFILE = pathlib.Path(__file__)
 
-GAMMARANGE = [-1.3, 0.1]
+RELFITRANGE = [-0.3, 1.1]
 
 def parse_args():
   """Read in the arguments for the sgrna library construction code."""
@@ -26,17 +26,17 @@ def parse_args():
   parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-      '--xgammas', type=str,
-      help='file: unique entries for gamma by variant -- x axis',
+      '--xrelfits', type=str,
+      help='file: unique entries for fitness by variant -- x axis',
       required=True)
   parser.add_argument(
       '--xname', type=str,
       help='str: label name for x axis',
       required=True)
   parser.add_argument(
-      '--ygammas', type=str,
+      '--yrelfits', type=str,
       action='append',
-      help='file: unique entries for gamma by variant -- y axis (repeatable)',
+      help='file: unique entries for fitness by variant -- y axis (repeatable)',
       required=True)
   parser.add_argument(
       '--yname', type=str,
@@ -73,7 +73,7 @@ def parse_args():
       action='store_false')
   parser.set_defaults(shrink=False, midline=False)
   args = parser.parse_args()
-  assert len(args.ygammas) == len(args.yname)
+  assert len(args.yrelfits) == len(args.yname)
   if args.remove is None:
     args.remove = list()
   return args
@@ -85,46 +85,46 @@ def main():
     controls = set(pd.read_csv(args.controls, header=None)[0])
   else:
     controls = set()
-  template = 'Reading X: {args.xname} from {args.xgammas}...'
+  template = 'Reading X: {args.xname} from {args.xrelfits}...'
   logging.info(template.format(**locals()))
-  xdata = pd.read_csv(args.xgammas, sep='\t')
-  data = xdata[['variant', 'gamma', 'gene']]
+  xdata = pd.read_csv(args.xrelfits, sep='\t')
+  data = xdata[['variant', 'relfit', 'gene']]
   data.columns = ['variant', 'base', 'gene']
   hues = list()
-  for yname, ygammas in zip(args.yname, args.ygammas):
-    template = 'Reading Y: {yname} from {ygammas}...'
+  for yname, yrelfits in zip(args.yname, args.yrelfits):
+    template = 'Reading Y: {yname} from {yrelfits}...'
     logging.info(template.format(**locals()))
-    yg = pd.read_csv(ygammas, sep='\t')
-    yg = yg[['variant', 'gamma']]
+    yg = pd.read_csv(yrelfits, sep='\t')
+    yg = yg[['variant', 'relfit']]
     yd = pd.merge(data, yg, on='variant', how='outer')
-    yd = yd.dropna(how='any', subset=['base', 'gamma'])
+    yd = yd.dropna(how='any', subset=['base', 'relfit'])
     yd['name'] = yname
     hues.append(yd)
   ydata = pd.concat(hues, axis='index')
   ydata = ydata.loc[~ydata.variant.isin(controls)]
   if args.shrink:
-    sickside = 1.1 * min(ydata.gamma.min(), ydata.base.min())
-    GAMMARANGE[0] = sickside
+    sickside = 1.1 * min(ydata.relfit.min(), ydata.base.min())
+    RELFITRANGE[0] = sickside
   ydata = ydata.loc[~ydata.gene.isin(args.remove)]
   ydata = ydata.dropna(subset=['gene'], axis='index')
   logging.info('Drawing plot...')
   figure = plt.figure(figsize=(6,6))
-  plt.xlim(*GAMMARANGE)
-  plt.ylim(*GAMMARANGE)
+  plt.xlim(*RELFITRANGE)
+  plt.ylim(*RELFITRANGE)
   if args.ylabel is not None:
-    plot = sns.scatterplot('base', 'gamma', data=ydata, hue='name',
+    plot = sns.scatterplot('base', 'relfit', data=ydata, hue='name',
                            s=10, alpha=0.5, edgecolor='none', legend='brief')
     plt.ylabel(args.ylabel)
   elif len(args.yname) == 1:
-    plot = sns.scatterplot('base', 'gamma', data=ydata, hue='name',
+    plot = sns.scatterplot('base', 'relfit', data=ydata, hue='name',
                            s=10, alpha=0.5, edgecolor='none', legend=False)
     plt.ylabel(args.yname[0])
   else:
-    plot = sns.scatterplot('base', 'gamma', data=ydata, hue='name',
+    plot = sns.scatterplot('base', 'relfit', data=ydata, hue='name',
                            s=10, alpha=0.5, edgecolor='none', legend='brief')
     plt.ylabel('')
   if args.midline:
-    plt.plot(GAMMARANGE, GAMMARANGE, 'b--', linewidth=0.5)
+    plt.plot(RELFITRANGE, RELFITRANGE, 'b--', linewidth=0.5)
   plt.xlabel(args.xname)
   plt.tight_layout()
   plt.savefig(args.pngfile, dpi=600)

@@ -29,8 +29,8 @@ def parse_args():
   parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-      '--gammas', type=str,
-      help='file: unique entries for gamma by variant -- x axis',
+      '--relfits', type=str,
+      help='file: unique entries for relfit by variant -- x axis',
       required=True)
   parser.add_argument(
       '--name', type=str,
@@ -51,9 +51,9 @@ def parse_args():
 def main():
   args = parse_args()
 
-  template = 'Reading {args.name} from {args.gammas}...'
+  template = 'Reading {args.name} from {args.relfits}...'
   logging.info(template.format(**locals()))
-  data = pd.read_csv(args.gammas, sep='\t')
+  data = pd.read_csv(args.relfits, sep='\t')
   bintally = el.bin_counts_by_gene(data)
 
 

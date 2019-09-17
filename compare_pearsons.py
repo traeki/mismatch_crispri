@@ -28,16 +28,16 @@ def parse_args():
   parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-      '--xgammas', type=str,
-      help='file: unique entries for gamma by variant -- x axis',
+      '--xrelfits', type=str,
+      help='file: unique entries for relfit by variant -- x axis',
       required=True)
   parser.add_argument(
       '--xname', type=str,
       help='str: label name for x axis',
       required=True)
   parser.add_argument(
-      '--ygammas', type=str,
-      help='file: unique entries for gamma by variant -- y axis',
+      '--yrelfits', type=str,
+      help='file: unique entries for relfit by variant -- y axis',
       required=True)
   parser.add_argument(
       '--yname', type=str,
@@ -53,17 +53,17 @@ def parse_args():
 
 def main():
   args = parse_args()
-  template = 'Reading X: {args.xname} from {args.xgammas}...'
+  template = 'Reading X: {args.xname} from {args.xrelfits}...'
   logging.info(template.format(**locals()))
-  xdata = pd.read_csv(args.xgammas, sep='\t')
+  xdata = pd.read_csv(args.xrelfits, sep='\t')
   xprs = el.pearsons_by_gene(xdata)
 
-  template = 'Reading Y: {args.yname} from {args.ygammas}...'
+  template = 'Reading Y: {args.yname} from {args.yrelfits}...'
   logging.info(template.format(**locals()))
-  ydata = pd.read_csv(args.ygammas, sep='\t')
+  ydata = pd.read_csv(args.yrelfits, sep='\t')
   yprs = el.pearsons_by_gene(ydata)
 
-  hues = ydata.groupby('gene').gamma.min().abs()
+  hues = ydata.groupby('gene').relfit.min().abs()
 
   data = pd.concat([xprs, yprs], axis='columns')
   data.columns = [args.xname, args.yname]
@@ -73,10 +73,11 @@ def main():
                   hue=hues, legend=False,
                   s=10, alpha=1, edgecolor='none')
 
-  plt.xlim(-1.1, 1.1)
-  plt.ylim(-1.1, 1.1)
-  plt.xlabel(args.xname)
-  plt.ylabel(args.yname)
+  plt.xlim(-0.1, 1.1)
+  plt.ylim(-0.1, 1.1)
+  template = 'Pearson R for each gene in {0}'
+  plt.xlabel(template.format(args.xname))
+  plt.ylabel(template.format(args.yname))
   plt.tight_layout()
   plt.savefig(args.pngfile, dpi=600)
   plt.close('all')

@@ -79,15 +79,15 @@ def bubble_gap(row):
 def plot_gvk_doubles(data, compcol, pngfile):
   figure = plt.figure(figsize=(6,6))
   data = data.dropna(subset=[compcol, 'relgfp'])
-  prs, pval = st.pearsonr(data[compcol], data.relgfp)
-  plot = sns.scatterplot(compcol, 'relgfp', data=data, hue='gap',
+  prs, _ = st.pearsonr(data[compcol], data.relgfp)
+  plot = sns.scatterplot(compcol, 'relgfp', data=data,
                          s=10, alpha=1, edgecolor='none', legend=False)
-  plt.text(0, 1.0, 'Pearson R: {prs:.2f}'.format(**locals()))
+  plt.text(0, 0.9, 'Pearson R: {prs:.2f}'.format(**locals()))
   plt.xlim(-0.1, 1.1)
   plt.ylim(-0.1, 1.1)
-  template = 'Knockdown (synthesis of predictions -- {compcol})'
+  template = 'Predicted GFP Knockdown (geometric aggregate)'
   plt.xlabel(template.format(**locals()))
-  plt.ylabel('FACS-seq score')
+  plt.ylabel('Measured GFP Knockdown (FACS-seq score)')
   plt.tight_layout()
   logging.info('Drawing {compcol} eval to {pngfile}...'.format(**locals()))
   plt.savefig(pngfile, dpi=600)
@@ -114,7 +114,6 @@ def main():
   bref.columns = ['original', 'variant']
   flatframe['b_pred'] = ml.predict_mismatch_scores(bref)
   flatframe['geometric'] = flatframe.a_pred * flatframe.b_pred
-  flatframe['gap'] = flatframe.apply(bubble_gap, axis='columns')
   compcol = 'geometric'
   suffix = '.{compcol}.png'.format(**locals())
   pngfile = pathlib.Path(args.pngfile).with_suffix(suffix)

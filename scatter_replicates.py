@@ -25,8 +25,8 @@ def parse_args():
   parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-      '--gammas', type=str,
-      help='file: unaveraged gammas by replicate',
+      '--relfits', type=str,
+      help='file: unaveraged relfits by replicate',
       required=True)
   parser.add_argument(
       '--pngfile', type=str,
@@ -38,22 +38,22 @@ def parse_args():
 
 def main():
   args = parse_args()
-  template = 'Reading gammas from {args.gammas}...'
+  template = 'Reading relfits from {args.relfits}...'
   logging.info(template.format(**locals()))
-  data = pd.read_csv(args.gammas, sep='\t')
+  data = pd.read_csv(args.relfits, sep='\t')
   logging.info('Drawing plot...')
   fig, ax = plt.subplots(1, 1, figsize=(6,6))
-  subs = data[['variant', 'rep', 'gamma']]
+  subs = data[['variant', 'rep', 'relfit']]
   subs = subs.set_index(['variant', 'rep'])
   subs = subs.unstack(level='rep')
   a = subs.columns[-2]
   b = subs.columns[-1]
-  plt.xlim(-1.3, 0.1)
-  plt.ylim(-1.3, 0.1)
+  plt.xlim(-0.3, 1.1)
+  plt.ylim(-0.3, 1.1)
   plot = sns.scatterplot(a, b, data=subs,
                          s=5, alpha=0.5, edgecolor='none')
-  plt.xlabel('gamma [replicate a]'.format(**locals()))
-  plt.ylabel('gamma [replicate b]'.format(**locals()))
+  plt.xlabel('Relative Fitness [first replicate]'.format(**locals()))
+  plt.ylabel('Relative Fitness [second replicate]'.format(**locals()))
   cleansubs = subs.dropna(subset=[a, b])
   prs, _ = st.pearsonr(cleansubs[a], cleansubs[b])
   ax.text(0.05, 0.95,

@@ -18,7 +18,7 @@ _PACKAGEDIR = pathlib.Path(__file__).parent
 TESTDIR = _PACKAGEDIR / 'testdata'
 _CODEFILE = pathlib.Path(__file__)
 
-GAMMARANGE = (-1.3, 0.1)
+RELFITRANGE = (-0.3, 1.1)
 
 def parse_args():
   """Read in the arguments for the sgrna library construction code."""
@@ -26,17 +26,17 @@ def parse_args():
   parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-      '--basegammas', type=str,
-      help='file: unique entries for gamma by variant -- base',
+      '--baserelfits', type=str,
+      help='file: unique entries for fitness by variant -- base',
       required=True)
   parser.add_argument(
       '--basename', type=str,
       help='str: label name for base set',
       required=True)
   parser.add_argument(
-      '--compgammas', type=str,
+      '--comprelfits', type=str,
       action='append',
-      help='file: unique entries for gamma by variant -- comparison (repeatable)',
+      help='file: unique entries for fitness by variant -- comp (repeatable)',
       required=True)
   parser.add_argument(
       '--compname', type=str,
@@ -61,19 +61,19 @@ def main():
     controls = set(pd.read_csv(args.controls, header=None)[0])
   else:
     controls = set()
-  template = 'Reading base set: {args.basename} from {args.basegammas}...'
+  template = 'Reading base set: {args.basename} from {args.baserelfits}...'
   logging.info(template.format(**locals()))
-  basedata = pd.read_csv(args.basegammas, sep='\t')
-  data = basedata[['variant', 'gamma', 'gene']]
+  basedata = pd.read_csv(args.baserelfits, sep='\t')
+  data = basedata[['variant', 'relfit', 'gene']]
   data.columns = ['variant', 'base', 'gene']
   hues = list()
-  for compname, compgammas in zip(args.compname, args.compgammas):
-    template = 'Reading comp: {compname} from {compgammas}...'
+  for compname, comprelfits in zip(args.compname, args.comprelfits):
+    template = 'Reading comp: {compname} from {comprelfits}...'
     logging.info(template.format(**locals()))
-    compg = pd.read_csv(compgammas, sep='\t')
-    compg = compg[['variant', 'gamma']]
+    compg = pd.read_csv(comprelfits, sep='\t')
+    compg = compg[['variant', 'relfit']]
     compd = pd.merge(data, compg, on='variant', how='outer')
-    compd = compd.dropna(how='any', subset=['base', 'gamma'])
+    compd = compd.dropna(how='any', subset=['base', 'relfit'])
     compd['name'] = compname
     hues.append(compd)
   compdata = pd.concat(hues, axis='index')
@@ -81,13 +81,13 @@ def main():
   controldata = compdata.loc[cmask]
   compdata = compdata.loc[~cmask]
   radius = controldata.base.std()
-  nullset = compdata.loc[compdata.base.abs() < radius]
+  nullset = compdata.loc[(compdata.base-1).abs() < radius]
 
   figure = plt.figure(figsize=(6,6))
   logging.info('Drawing plot to {args.pngfile}...'.format(**locals()))
 
   subset = nullset.loc[nullset.gene == 'dfrA']
-  sns.violinplot(x='name', y='gamma', data=subset, scale='width')
+  sns.violinplot(x='name', y='relfit', data=subset, scale='width')
 
   plt.tight_layout()
   plt.savefig(args.pngfile, dpi=600)
