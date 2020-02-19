@@ -8,6 +8,7 @@ import shutil
 import sys
 
 from matplotlib import pyplot as plt
+import numpy as np
 import pandas as pd
 import scipy.stats as st
 import seaborn as sns
@@ -52,7 +53,8 @@ def main():
   prs = el.pearsons_by_gene(data)
 
   fig, ax = plt.subplots(1, 1, figsize=(6,3), sharex=True)
-  sns.distplot(prs.dropna(), norm_hist=True)
+  bins = np.linspace(-0.2, 1.2, 29)
+  sns.distplot(prs.dropna(), kde=False, norm_hist=False, bins=bins)
   medprs = prs.median()
 
   ax.text(0.05, 0.90,

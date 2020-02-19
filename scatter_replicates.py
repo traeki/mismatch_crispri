@@ -48,8 +48,8 @@ def main():
   subs = subs.unstack(level='rep')
   a = subs.columns[-2]
   b = subs.columns[-1]
-  plt.xlim(-0.3, 1.1)
-  plt.ylim(-0.3, 1.1)
+  plt.xlim(-0.3, 1.3)
+  plt.ylim(-0.3, 1.3)
   plot = sns.scatterplot(a, b, data=subs,
                          s=5, alpha=0.5, edgecolor='none')
   plt.xlabel('Relative Fitness [first replicate]'.format(**locals()))

@@ -100,17 +100,22 @@ def main():
     figure = plt.figure(figsize=(6,6))
     plt.xlim(*RELFITRANGE)
     plt.ylim(*RELFITRANGE)
+    SIZE = 10
+    ALPHA = 0.5
+    if len(group) < 100:
+      SIZE = 20
+      ALPHA = 1
     if args.ylabel is not None:
       plot = sns.scatterplot('base', 'relfit', data=group, hue='name',
-                             s=10, alpha=0.5, edgecolor='none', legend='brief')
+                             s=SIZE, alpha=ALPHA, edgecolor='none', legend='brief')
       plt.ylabel(args.ylabel)
     elif len(args.yname) == 1:
       plot = sns.scatterplot('base', 'relfit', data=group, hue='name',
-                             s=10, alpha=0.5, edgecolor='none', legend=False)
+                             s=SIZE, alpha=ALPHA, edgecolor='none', legend=False)
       plt.ylabel(args.yname[0])
     else:
       plot = sns.scatterplot('base', 'relfit', data=group, hue='name',
-                             s=10, alpha=0.5, edgecolor='none', legend='brief')
+                             s=SIZE, alpha=ALPHA, edgecolor='none', legend='brief')
       plt.ylabel('')
     plt.plot(RELFITRANGE, RELFITRANGE, 'b--', linewidth=0.5)
     plt.xlabel(args.xname)
