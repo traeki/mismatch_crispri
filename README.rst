@@ -43,11 +43,11 @@ compute gammas
 
 ->
 
-convert to relfit
+convert to relative fitness
 
 ->
 
-analyze relfit
+analyze relative fitness
 
 Training a Predictive Model
 ---------------------------
@@ -148,7 +148,7 @@ Converting to Relative Fitness
 For most purposes, it is easier to reason about relative fitness (growth rate
 as a fraction of wildtype growth rate) than about gamma.  Relative fitness is
 just (1 + γ), so the computation is simple, but for convenience we have a
-script that converts a tsv file from gamma to relfit.
+script that converts a tsv file from gamma to relative fitness.
 
 ::
 
@@ -166,8 +166,8 @@ analysis.  (Indeed, we may eventually change the code base to use this metric
 by default.)
 
 
-Analyze Gammas
---------------
+Analyze Fitness
+---------------
 
 Analysis will depend heavily on application.  We provide kvf_by_gene.py for
 simple visualization of prediction vs outcome, broken down by locus_tag.
