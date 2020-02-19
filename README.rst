@@ -7,6 +7,21 @@ Python scripts to facilitate the design of single-mismatch CRISPRi guide
 libraries and analyze the results of pooled growth experiments using those
 libraries.
 
+Prerequisites
+-------------
+
+In order to use this library you will need:
+
+* Python3
+* Biopython
+* pandas
+* sklearn
+* joblib
+* keras
+* tensorflow
+* matplotlib
+* seaborn
+
 Introduction
 ------------
 
@@ -95,13 +110,6 @@ is matching, depending on your DNA construct.  Call
 
 to see rough call signature, with the aforementioned caveats.
 
-::
-
-    ./count_guides.py
-
-with no arguments will run the script on the sample files in testdata/ as a
-demonstration.
-
 
 Computing Gamma Values
 ----------------------
@@ -168,12 +176,12 @@ As usual,
 
 ::
 
-    ./kfv_by_gene.py -h
+    ./kvf_by_gene.py -h
 
 gives usage information, and
 
 ::
 
-    ./kfv_by_gene.py
+    ./kvf_by_gene.py
 
 with no arguments applies the script to the sample data in testdata/.
