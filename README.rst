@@ -7,6 +7,21 @@ Python scripts to facilitate the design of single-mismatch CRISPRi guide
 libraries and analyze the results of pooled growth experiments using those
 libraries.
 
+Prerequisites
+-------------
+
+In order to use this library you will need:
+
+* Python3
+* Biopython
+* pandas
+* sklearn
+* joblib
+* keras
+* tensorflow
+* matplotlib
+* seaborn
+
 Introduction
 ------------
 
